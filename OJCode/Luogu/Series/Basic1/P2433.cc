@@ -38,21 +38,28 @@ int main()
         printf("110\n90\n0");
         break;
     case 8:
-        cout << 2 * pi__ * 5 << endl << pi__ * 25 << endl << 4.0 / 3.0 * pi__ * 125;
+        cout << 2 * pi__ * 5 << endl
+             << pi__ * 25 << endl
+             << 4.0 / 3.0 * pi__ * 125;
         break;
     case 9:
         printf("22");
         break;
     case 10:
-        
+        printf("9\n");
         break;
     case 11:
+        cout << 100.0 / 3.0 << endl;
         break;
     case 12:
+        printf("%d\n", 'M' - 'A' + 1);
+        printf("%c", 'A' + 17);
         break;
     case 13:
+        printf("%.0f\n", pow((4.0 / 3.0 * pi__ * 64) + (4.0 / 3.0 * pi__ * 1000), 1.0 / 3.0));
         break;
     case 14:
+        printf("50\n");
         break;
     }
 #ifdef LOCAL
