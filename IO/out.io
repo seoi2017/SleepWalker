@@ -1,2 +1,4 @@
-Please input two integers
-632448
+1 2 3 
+Insertion Sort wins!
+1 2 3 
+Selection Sort wins!
