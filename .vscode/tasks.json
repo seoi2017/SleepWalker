@@ -8,11 +8,21 @@
             "label": "C/C++: g++ build active file",
             "command": "/usr/bin/g++",
             "args": [
+                "-fopenmp",
+                "-msse4.1",
+                "-mavx2",
                 "-g",
                 "${file}",
                 "-o",
                 "${workspaceFolder}/IO/main",
-                "-DLOCAL"
+                "-I",
+                "/home/invrise/OpenBLAS/include/",
+                "-L",
+                "/home/invrise/OpenBLAS/lib",
+                "-lopenblas",
+                "-DLOCAL",
+                "-lpthread",
+                "-lm"
             ],
             "options": {
                 "cwd": "/usr/bin"

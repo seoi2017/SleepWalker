@@ -12,7 +12,26 @@ Problem ID: Lab3_A
 #define MAXN 200020
 using namespace std;
 int n, m;
-int a[MAXN];
+int a[MAXN], b[MAXN];
+void mergesort(int l, int r, int x[], int y[])
+{
+    if (l >= r)
+        return;
+    int mid = (l + r) >> 1;
+    int ls = l, le = mid;
+    int rs = mid + 1, re = r;
+    mergesort(ls, le, x, y);
+    mergesort(rs, re, x, y);
+    int st = l;
+    while (ls <= le && rs <= re)
+        y[st++] = x[ls] < x[rs] ? x[ls++] : x[rs++];
+    while (ls <= le)
+        y[st++] = x[ls++];
+    while (rs <= re)
+        y[st++] = x[rs++];
+    for (st = l; st <= r; ++st)
+        x[st] = y[st];
+}
 int main()
 {
 #ifdef LOCAL
@@ -29,7 +48,7 @@ int main()
             scanf("%d", &a[i]);
         for (int i = n; i < n + m; ++i)
             scanf("%d", &a[i]);
-        sort(a, a + n + m);
+        mergesort(0, n + m - 1, a, b);
         for (int i = 0; i < n + m; ++i)
             printf("%d ", a[i]);
         printf("\n");

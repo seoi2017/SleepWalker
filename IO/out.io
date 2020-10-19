@@ -1,4 +1,2 @@
-1 2 3 
-Insertion Sort wins!
-1 2 3 
-Selection Sort wins!
+3 3 3 
+0 3 7 7 3 

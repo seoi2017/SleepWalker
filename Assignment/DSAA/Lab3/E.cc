@@ -19,7 +19,27 @@ struct Lushi
     {
         return this->benefit > x.benefit;
     }
-}ls[MAXN];
+}ls[MAXN], tp[MAXN];
+template<class T>
+void mergesort(int l, int r, T x[], T y[])
+{
+    if (l >= r)
+        return;
+    int mid = (l + r) >> 1;
+    int ls = l, le = mid;
+    int rs = mid + 1, re = r;
+    mergesort(ls, le, x, y);
+    mergesort(rs, re, x, y);
+    int st = l;
+    while (ls <= le && rs <= re)
+        y[st++] = x[ls] < x[rs] ? x[ls++] : x[rs++];
+    while (ls <= le)
+        y[st++] = x[ls++];
+    while (rs <= re)
+        y[st++] = x[rs++];
+    for (st = l; st <= r; ++st)
+        x[st] = y[st];
+}
 int main()
 {
 #ifdef LOCAL
@@ -38,7 +58,7 @@ int main()
         printf("%lld", ans1);
     else
     {
-        sort(ls, ls + n);
+        mergesort(0, n - 1, ls, tp);
         q = min(q, n);
         for (int i = 0; i < q; ++i)
             ans2 += ls[i].benefit;
@@ -48,7 +68,6 @@ int main()
         }
         printf("%lld", ans1 + ans);
     }
-    
 #ifdef LOCAL
     fclose(stdin);
     fclose(stdout);

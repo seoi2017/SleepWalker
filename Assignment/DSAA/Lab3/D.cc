@@ -16,11 +16,11 @@ int tree[MAXN];
 struct Number
 {
     int val, ind;
-    bool operator<(const Number &x) const
+    bool operator<=(const Number &x) const
     {
-        return this->val < x.val;
+        return this->val <= x.val;
     }
-}b[MAXN];
+}b[MAXN], c[MAXN];
 inline int lowbit(int x)
 {
     return x&(-x);
@@ -43,6 +43,26 @@ inline long long getAns(int i)
     }
     return ans;
 }
+template<class T>
+void mergesort(int l, int r, T x[], T y[])
+{
+    if (l >= r)
+        return;
+    int mid = (l + r) >> 1;
+    int ls = l, le = mid;
+    int rs = mid + 1, re = r;
+    mergesort(ls, le, x, y);
+    mergesort(rs, re, x, y);
+    int st = l;
+    while (ls <= le && rs <= re)
+        y[st++] = x[ls] <= x[rs] ? x[ls++] : x[rs++];
+    while (ls <= le)
+        y[st++] = x[ls++];
+    while (rs <= re)
+        y[st++] = x[rs++];
+    for (st = l; st <= r; ++st)
+        x[st] = y[st];
+}
 int main()
 {
 #ifdef LOCAL
@@ -60,7 +80,7 @@ int main()
             scanf("%d", &b[i].val);
             b[i].ind = i + 1;
         }
-        stable_sort(b, b + n);
+        mergesort(0, n - 1, b, c);
         long long cnt = 0LL;
         for (int i = 0; i < n; ++i)
         {

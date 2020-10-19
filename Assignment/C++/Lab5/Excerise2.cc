@@ -1,7 +1,7 @@
 /*
 Environment: C++11
 Course: SUSTech_C++
-Problem ID: Lab4_Excerise2
+Problem ID: Lab5_Excerise2
 */
 #include <bits/stdc++.h>
 using namespace std;
@@ -33,7 +33,7 @@ int main()
     string name;
     double weight;
     int noc;
-    CandyBar obj[3];
+    CandyBar *obj = new CandyBar[3];
     cout << "Pleast input three CandyBar's information:" << endl;
     for (int i = 0; i < 3; ++i)
     {
@@ -48,9 +48,10 @@ int main()
     }
     sort(obj, obj + 3);
     cout << endl << "Displaying the CandyBar array contents:" << endl;
-    for (auto i : obj)
-        i.output();
+    for (auto i = obj; i < obj + 3; ++i)
+        i->output();
     cout << endl << "The greatest calories per weight is:" << endl;
     obj[2].output__();
+    delete[] obj;
     return 0;
 }

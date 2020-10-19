@@ -23,6 +23,28 @@ struct Line
         return this->high < x.high || (this->high == x.high && this->ind < x.ind);
     }
 }lp[MAXN], lq[MAXN];
+template<class T>
+void quicksort(int l, int r, T x[])
+{
+    T mid = x[(l + r) >> 1];
+    int i = l, j = r;
+    while (i <= j)
+    {
+        while (x[i] < mid)
+            ++i;
+        while (mid < x[j])
+            --j;
+        if (i <= j)
+        {
+            swap(x[i], x[j]);
+            ++i, --j;
+        }
+    }
+    if (j > l)
+        quicksort(l, j, x);
+    if (i < r)
+        quicksort(i, r, x);
+}
 int main()
 {
 #ifdef LOCAL
@@ -40,8 +62,8 @@ int main()
         lq[i].ind = i;
         lq[i].high = (double)k * q + b;
     }
-    sort(lq, lq + n);
-    sort(lp, lp + n);
+    quicksort(0, n - 1, lq);
+    quicksort(0, n - 1, lp);
     bool can = false;
     for (int i = 0; i < n; ++i)
         if (lq[i].ind != lp[i].ind)

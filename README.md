@@ -62,3 +62,5 @@ C++ cin\cout 的格式控制
 ## TODO
 
 格式化所有代码文档
+OpenMP
+SSE\AVX
