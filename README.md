@@ -58,9 +58,13 @@ SleepWalker是本人在OI阶段为一套题目拟定的一组背景故事，有�
 ## To Learn
 
 C++ cin\cout 的格式控制
+CMAKE
+OpenMP
+SSE\AVX
+智能指针
+Node* a和Node *&a的区别
 
 ## TODO
 
+DSAA LAB4 D 对顶堆BUG
 格式化所有代码文档
-OpenMP
-SSE\AVX

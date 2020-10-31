@@ -8,69 +8,69 @@ Problem ID: Lab4_F
 #include <cstring>
 #include <cstring>
 #include <algorithm>
-#include <forward_list>
-#include <vector>
 #include <cstdlib>
 #define MAXLEN 210010
 #define BLOCK 450
 using namespace std;
-typedef forward_list<vector<char>>::iterator iter;
-forward_list<vector<char>> lst;
-char str[MAXLEN], chr;
-int n;
-inline iter getPos(int &pos)
+struct Node
 {
-    for (iter it = lst.begin(); it != lst.end(); ++it)
-    {
-        if (pos <= it->size())
-            return it;
-        pos -= it->size();
-    }
-    return lst.before_begin();
-}
-inline void init(char *s)
+    char sub[BLOCK * 2 + 10];
+    int size;
+    Node *prev, *next;
+}block[BLOCK];
+int blockNum = 0;
+inline void init(const char *str)
 {
-    int len = strlen(s), nowPos = 0;
-    lst.clear();
-    vector<char> temp;
-    iter it = lst.before_begin();
-    while (nowPos < len)
+    blockNum = 0;
+    Node *last = &block[blockNum++], *node;
+    while (strlen(str) > 0)
     {
-        temp.clear();
-        for (int i = 0; i < BLOCK && nowPos < len; ++i, ++nowPos)
-            temp.push_back(s[nowPos]);
-        lst.insert_after(it, temp);
-        ++it;
+        int len = min((int)strlen(str), BLOCK);
+        node = &block[blockNum++];
+        node->prev = last;
+        last->next = node;
+        node->size = len;
+        memcpy(node->sub, str, len * sizeof(char));
+        str = str + len;
+        last = node;
     }
 }
 inline void insert(char c, int pos)
 {
-    iter it = getPos(pos);
-    vector<char>::iterator sit = it->begin() + pos - 1;
-    it->insert(sit, c);
-    if (it->size() >= 2 * BLOCK) // Split
+    Node *node = block[0].next;
+    while (node->next != nullptr && pos > node->size)
     {
-        sit = it->begin() + (it->size() / 2);
-        lst.insert_after(it, vector<char>(sit, it->end()));
-        it->erase(sit, it->end());
+        pos -= node->size;
+        node = node->next;
+    }
+    --pos;
+    for (int i = node->size; i > pos; --i)
+        node->sub[i] = node->sub[i - 1];
+    node->sub[pos] = c;
+    if (++node->size >= BLOCK * 2)
+    {
+        Node *step = &block[blockNum++];
+        memcpy(step->sub, node->sub + BLOCK, BLOCK);
+        node->size -= BLOCK;
+        step->size = BLOCK;
+        step->next = node->next;
+        step->prev = node;
+        node->next->prev = step;
+        node->next = step;
     }
 }
 inline char query(int pos)
 {
-    iter it = getPos(pos);
-    return *(it->begin() + pos - 1);
-}
-inline void debugOutput()
-{
-    for (iter it = lst.begin(); it != lst.end(); ++it)
+    Node *node = block[0].next;
+    while (pos > node->size)
     {
-        printf("[");
-        for (int i = 0; i < it->size(); ++i)
-            printf("%c", (*it)[i]);
-        printf("]\n");
+        pos -= node->size;
+        node = node->next;
     }
-    printf("=================\n");
+    return node->sub[--pos];
 }
+char str[MAXLEN], chr;
+int n;
 int main()
 {
 #ifdef LOCAL
@@ -91,7 +91,6 @@ int main()
             {
                 scanf("%c%d", &chr, &oper);
                 insert(chr, oper);
-                // debugOutput();
             }
             else
             {
@@ -99,7 +98,6 @@ int main()
                 printf("%c\n", query(oper));
             }
         }
-        // debugOutput();
     }
 #ifdef LOCAL
     fclose(stdin);

@@ -9,7 +9,6 @@ Problem ID: Lab4_C
 #include <cstring>
 #include <algorithm>
 #include <cstdlib>
-#include <map>
 #define MAXN 2010
 using namespace std;
 long long n, m;
@@ -17,11 +16,31 @@ struct Pair
 {
     long long key, value;
     Pair(long long x = 0LL, long long y = 0LL): key(x), value(y) {}
-    bool operator<(const Pair x) const
+    bool operator<=(const Pair x) const
     {
-        return this->key < x.key;
+        return this->key <= x.key;
     }
-}mp[MAXN];
+}mp[MAXN], temp[MAXN];
+template<class T>
+void mergesort(int l, int r, T x[], T y[])
+{
+    if (l >= r)
+        return;
+    int mid = (l + r) >> 1;
+    int ls = l, le = mid;
+    int rs = mid + 1, re = r;
+    mergesort(ls, le, x, y);
+    mergesort(rs, re, x, y);
+    int st = l;
+    while (ls <= le && rs <= re)
+        y[st++] = x[ls] <= x[rs] ? x[ls++] : x[rs++];
+    while (ls <= le)
+        y[st++] = x[ls++];
+    while (rs <= re)
+        y[st++] = x[rs++];
+    for (st = l; st <= r; ++st)
+        x[st] = y[st];
+}
 int main()
 {
 #ifdef LOCAL
@@ -45,7 +64,7 @@ int main()
             scanf("%lld%lld", &temp1, &temp2);
             mp[n + j].key = temp2, mp[n + j].value = temp1;
         }
-        sort(mp, mp + n + m);
+        mergesort(0, n + m - 1, mp, temp);
         bool allZero = true;
         long long key = 0LL, value = 0LL;
         for (int i = 0; i < n + m; ++i)

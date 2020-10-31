@@ -1,5 +1,14 @@
-2
-6
-3 2 8 6 2 3
-9
-0 8 3 12 7 8 3 1 2
+put-in 5
+put-in 1
+put-in 4
+put-in 1
+eat
+put-in 1
+put-in 4
+eat
+eat
+eat
+eat
+eat
+eat
+nsdd

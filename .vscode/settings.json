@@ -11,6 +11,14 @@
         "iosfwd": "cpp",
         "chrono": "cpp",
         "*.cu": "cpp",
-        "atomic": "cpp"
-    }
+        "atomic": "cpp",
+        "bitset": "cpp",
+        "forward_list": "cpp",
+        "functional": "cpp",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "streambuf": "cpp",
+        "variant": "cpp"
+    },
+    "cmake.configureOnOpen": false
 }

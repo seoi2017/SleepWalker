@@ -10,32 +10,14 @@ Problem ID: Lab4_A
 #include <algorithm>
 #include <cstdlib>
 #define MAXN 131073
-#define MAXPOW 17
 using namespace std;
-int n, k, maxNode;
-int tree[MAXN];
-inline int lowbit(int x)
+struct Node
 {
-    return x & (-x);
-}
-inline void change(int t, int x)
-{
-    for (int i = t; i <= maxNode; i += lowbit(i))
-        tree[i] += x;
-}
-inline int query(int x)
-{
-    int ans = 0, now = 0;
-    for (int i = 17; i >= 0; --i)
-    {
-        ans += (1 << i);
-        if (maxNode < ans || tree[ans] + now >= x)
-            ans -= (1 << i);
-        else
-            now += tree[ans];
-    }
-    return ans + 1;
-}
+    int val;
+    Node *prev, *next;
+}pool[MAXN];
+int n, k, top;
+Node *it;
 int main()
 {
 #ifdef LOCAL
@@ -47,18 +29,28 @@ int main()
     while (T--)
     {
         scanf("%d%d", &n, &k);
-        memset(tree, 0, sizeof(tree));
-        maxNode = n;
         for (int i = 1; i <= n; ++i)
-            tree[i] = lowbit(i);
-        int now = 1;
-        while (n)
         {
-            now = (now - 1 + k - 1) % n + 1;
-            int ans = query(now);
-            change(ans, -1);
-            printf("%d ", ans);
-            --n;
+            pool[i].val = i;
+            pool[i].next = &pool[i + 1];
+            pool[i].prev = &pool[i - 1];
+        }
+        pool[n].next = &pool[1];
+        pool[1].prev = &pool[n];
+        it = &pool[1];
+        top = 0;
+        while (n != 0)
+        {
+            if (++top == k)
+            {
+                it->prev->next = it->next;
+                it->next->prev = it->prev;
+                printf("%d ", it->val);
+                if (it->next == it)
+                    break;
+                top = 0;
+            }
+            it = it->next;
         }
         printf("\n");
     }
