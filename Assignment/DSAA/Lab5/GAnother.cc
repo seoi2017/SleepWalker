@@ -1,57 +1,91 @@
-// BZOJ 3956 AC
+/*
+Author: Invrise
+OJ Site: SUSTech_DSAA_OJ
+Problem ID: Lab5_G
+*/
 #include <iostream>
-#include <cstdio>
+#include <cmath>
+#include <cstring>
 #include <cstring>
 #include <algorithm>
-#include <cmath>
-#define N 1000003
+#include <cstdlib>
+#define MAXN 300010
+#define MAXLGN 20
 using namespace std;
-int n, m, h[N], st[N], suml[N], sumr[N];
-int f[20][N], cnt, mark[N], l[N], type;
-struct data
+struct Node
 {
-    int x, y;
-} point[N * 2];
-int cmp1(data a, data b)
-{
-    return a.x < b.x;
-}
-int cmp2(data a, data b)
-{
-    return a.y > b.y;
-}
-void solve()
-{
-    for (int i = 1; i <= n; i++)
-        f[0][i] = i;
-    for (int i = 1; i <= 19; i++)
-        for (int j = 1; j <= n; j++)
-            if (j + (1 << i) - 1 <= n)
-            {
-                int x = f[i - 1][j];
-                int y = f[i - 1][j + (1 << (i - 1))];
-                if (h[x] < h[y])
-                    f[i][j] = y;
-                else
-                    f[i][j] = x;
-            }
-    int j = 0;
-    for (int i = 1; i <= n; i++)
+    int val, ind;
+    Node(int x = 0, int y = 0): val(x), ind(y) {}
+    bool operator<(const Node &x) const
     {
-        if ((1 << (j + 1)) <= i)
-            j++;
-        l[i] = j;
+        return this->val < x.val;
     }
-}
-int calc(int x, int y)
+};
+struct Ask
 {
-    int k = l[y - x];
-    int a = f[k][x];
-    int b = f[k][y - (1 << k) + 1];
-    if (h[a] < h[b])
-        return b;
-    else
-        return a;
+    int l, r, index;
+    long long result;
+    Ask(int x = 0, int y = 0, int index = 0) : l(x), r(y), index(index)
+    {
+        this->result = 0LL;
+    }
+}ask[MAXN];
+class Stack
+{
+private:
+    int cnt;
+    Node array[MAXN];
+public:
+    Stack(): cnt(0) {}
+    Node top()
+    {
+        if (this->isEmpty() == false)
+            return this->array[this->cnt - 1];
+        return Node(0, 0);
+    }
+    bool isEmpty()
+    {
+        return this->cnt == 0 ? true : false;
+    }
+    bool pop()
+    {
+        if (this->isEmpty() == true)
+            return false;
+        --this->cnt;
+        return true;
+    }
+    void push(const int &x, const int &y)
+    {
+        this->array[this->cnt++] = Node(x, y);
+    }
+    int searchIndex(const int &pos)
+    {
+        int l = 0, r = this->cnt, mid;
+        while (l < r)
+        {
+            mid = (l + r) >> 1;
+            if (array[mid].ind < pos)
+                l = mid + 1;
+            else
+                r = mid;
+        }
+        return this->array[l].ind;
+    }
+    void clear()
+    {
+        this->cnt = 0;
+    }
+}stack;
+int n, q, val[MAXN], sumL[MAXN], sumR[MAXN];
+inline void debugOutput()
+{
+    printf("L: ");
+    for (int i = 1; i <= n; ++i)
+        printf("%d ", sumL[i]);
+    printf("\nR: ");
+    for (int i = 1; i <= n; ++i)
+        printf("%d ", sumR[i]);
+    printf("\n");
 }
 int main()
 {
@@ -59,67 +93,58 @@ int main()
     freopen("in.io", "r", stdin);
     freopen("out.io", "w", stdout);
 #endif
-    scanf("%d%d", &n, &m);
-    type = 0;
-    for (int i = 1; i <= n; i++)
-        scanf("%d", &h[i]);
-    int top = 1;
-    st[top] = 1;
-    for (int i = 2; i <= n; i++)
+    scanf("%d%d", &n ,&q);
+    for (int i = 1; i <= n; ++i)
+        scanf("%d", &val[i]);
+    for (int i = 1; i <= n; ++i)
     {
-        if (h[i] < h[st[top]])
+        while (stack.isEmpty() == false && stack.top().val <= val[i])
         {
-            ++top;
-            st[top] = i;
+            if (stack.top().val != val[i])
+                ++sumR[i];
+            stack.pop();
         }
-        else
-        {
-            while (h[st[top]] <= h[i] && top)
-            {
-                ++cnt;
-                point[cnt].x = st[top];
-                point[cnt].y = i;
-                if (h[st[top]] == h[i] && top != 1)
-                    mark[i] = 1;
-                if (top - 1 && !mark[st[top]])
-                {
-                    ++cnt;
-                    point[cnt].x = st[top - 1];
-                    point[cnt].y = st[top];
-                }
-                top--;
-            }
-            st[++top] = i;
-        }
+        stack.push(val[i], i);
     }
-    for (int i = top; i >= 2; i--)
-        if (!mark[st[i]])
-        {
-            ++cnt;
-            point[cnt].x = st[i - 1];
-            point[cnt].y = st[i];
-        }
-    sort(point + 1, point + cnt + 1, cmp1);
-    for (int i = 1; i <= cnt; i++)
-        suml[point[i].x]++, sumr[point[i].y]++;
-    for (int i = 1; i <= n; i++)
-        suml[i] += suml[i - 1];
-    for (int i = 1; i <= n; i++)
-        sumr[i] += sumr[i - 1];
-    solve();
-    int lastans = 0;
-    for (int i = 1; i <= m; i++)
+    for (int i = 1; i <= n; ++i)
+        sumR[i] += sumR[i - 1];
+    stack.clear();
+    for (int i = n; i > 0; --i)
     {
-        int l, r;
-        scanf("%d%d", &l, &r);
-        if (type)
-            l = (l + lastans - 1) % n + 1, r = (r + lastans - 1) % n + 1;
-        if (l > r)
-            swap(l, r);
-        int t = calc(l, r);
-        lastans = suml[t - 1] - suml[l - 1] + sumr[r] - sumr[t];
-        printf("%d\n", lastans);
+        while (stack.isEmpty() == false && stack.top().val <= val[i])
+        {
+            if (stack.top().val != val[i])
+                ++sumL[i];
+            stack.pop();
+        }
+        stack.push(val[i], i);
     }
+    for (int i = n; i > 0; --i)
+        sumL[i] += sumL[i + 1];
+    stack.clear();
+    for (int i = 0; i < q; ++i)
+    {
+        scanf("%d%d", &ask[i].l, &ask[i].r);
+        ask[i].index = i;
+    }
+    sort(ask, ask + q, [](const Ask &x, const Ask &y) { return x.r < y.r; });
+    for (int i = 0, maxPos; i < q; ++i)
+    {
+        for (int j = (i == 0 ? 1 : ask[i - 1].r + 1); j <= ask[i].r; ++j)
+        {
+            while (stack.isEmpty() == false && val[j] > stack.top().val)
+                stack.pop();
+            stack.push(val[j], j);
+        }
+        maxPos = stack.searchIndex(ask[i].l);
+        ask[i].result += sumL[ask[i].l] - sumL[maxPos];
+        ask[i].result += sumR[ask[i].r] - sumR[maxPos];
+        ask[i].result += (ask[i].r - ask[i].l);
+    }
+    // debugOutput();
+    sort(ask, ask + q, [](const Ask &x, const Ask &y) { return x.index < y.index; });
+    for (int i = 0; i < q; ++i)
+        printf("%lld\n", ask[i].result);
 #ifdef LOCAL
     fclose(stdin);
     fclose(stdout);
