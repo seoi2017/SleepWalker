@@ -63,8 +63,15 @@ OpenMP
 SSE\AVX
 智能指针
 Node* a和Node *&a的区别
+仿函数
+属性(C++11及更新)
+用户代码片段中的多光标同时修改
+内存对齐与#pragma pack()
 
 ## TODO
 
 DSAA LAB4 D 对顶堆BUG
 格式化所有代码文档
+删除 DSAA LAB4 及以后的代码中重复的头文件引用
+
+C++ Assignment 2 BUG修正与文档撰述
