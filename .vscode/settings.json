@@ -18,7 +18,8 @@
         "fstream": "cpp",
         "istream": "cpp",
         "streambuf": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "ostream": "cpp"
     },
     "cmake.configureOnOpen": false
 }

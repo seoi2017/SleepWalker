@@ -22,7 +22,8 @@
                 "-lopenblas",
                 "-DLOCAL",
                 "-lpthread",
-                "-lm"
+                "-lm",
+                "-std=c++17"
             ],
             "options": {
                 "cwd": "/usr/bin"

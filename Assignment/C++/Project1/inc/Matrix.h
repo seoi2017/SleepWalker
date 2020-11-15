@@ -16,23 +16,24 @@ namespace myMath
 {
     using TimePoint = chrono::_V2::system_clock::time_point;
 
-    class Matrix
+    struct Matrix
     {
     private:
         bool aligned;
         int rows, cols;
         float *data;
+
     public:
-        Matrix(const bool&, const int&, const int&, const bool& = false);
-        Matrix(const bool&, const int&, const int&, float*&);
+        Matrix(const bool &, const int &, const int &, const bool & = false);
+        Matrix(const bool &, const int &, const int &, float *&);
         ~Matrix();
 
         bool getAligned() const;
         int getRow() const;
         int getCol() const;
-        float* getData() const;
+        float *getData() const;
         void print();
-        Matrix* getTranspose() const;
+        Matrix *getTranspose() const;
     };
 
     enum TimeType
@@ -46,15 +47,16 @@ namespace myMath
     {
     private:
         TimePoint start, end;
+
     public:
         Timer();
         void setStart();
         void setEnd();
-        double getTimeInterval(const TimeType&) const;
+        double getTimeInterval(const TimeType &) const;
     };
 
-    // Original, OpenBLAS and Final Methods
-    Matrix* multiMethodVanilla(const Matrix&, const Matrix&, Timer&);
-    Matrix* multiMethodOpenBLAS(const Matrix&, const Matrix&, Timer&);
-    Matrix* multiMethodAdvanced(const Matrix&, const Matrix&, Timer&);
-}
+    // Basic, OpenBLAS and Advanced Methods
+    Matrix *multiMethodBasic(const Matrix &, const Matrix &, Timer &);
+    Matrix *multiMethodOpenBLAS(const Matrix &, const Matrix &, Timer &);
+    Matrix *multiMethodAdvanced(const Matrix &, const Matrix &, Timer &);
+} // namespace myMath

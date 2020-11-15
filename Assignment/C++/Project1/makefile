@@ -6,7 +6,7 @@ INCLUDE = -I./inc -I/home/invrise/OpenBLAS/include/
 
 CC = g++
 LIBS = -lm -lopenblas -L/home/invrise/OpenBLAS/lib
-CFLAGS = -c -Wall -msse4.1 -mfma -mavx2 -fopenmp -ggdb
+CFLAGS = -c -Wall -msse4.1 -mfma -mavx2 -fopenmp -ggdb -Ofast
 LDFLAGS = -Wall -fopenmp
 
 $(TARGET) : $(OBJS)

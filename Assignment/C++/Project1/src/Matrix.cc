@@ -3,7 +3,7 @@
 myMath::Matrix::Matrix(const bool &isAligned, const int &rows, const int &cols, const bool &isConstant) : aligned(isAligned), rows(rows), cols(cols)
 {
     if (isAligned == true)
-        posix_memalign((void**)&this->data , MEM_ALIGN, rows * cols * sizeof(float));
+        posix_memalign((void **)&this->data, MEM_ALIGN, rows * cols * sizeof(float));
     else
         this->data = new float[rows * cols];
     if (isConstant == false)
@@ -12,7 +12,7 @@ myMath::Matrix::Matrix(const bool &isAligned, const int &rows, const int &cols, 
         this->data[i] = isConstant == true ? 1.0 : static_cast<float>(rand() % 100000 - 50000) / 10000;
 }
 
-myMath::Matrix::Matrix(const bool &align, const int &a, const int &b, float* &c) : aligned(align), rows(a), cols(b), data(c)
+myMath::Matrix::Matrix(const bool &align, const int &a, const int &b, float *&c) : aligned(align), rows(a), cols(b), data(c)
 {
     // TODO : Check the align.
 }
@@ -37,7 +37,7 @@ int myMath::Matrix::getRow() const
     return this->rows;
 }
 
-float* myMath::Matrix::getData() const
+float *myMath::Matrix::getData() const
 {
     return this->data;
 }
@@ -52,11 +52,11 @@ void myMath::Matrix::print()
     }
 }
 
-myMath::Matrix* myMath::Matrix::getTranspose() const
+myMath::Matrix *myMath::Matrix::getTranspose() const
 {
     float *newData = nullptr;
     if (this->aligned == true)
-        posix_memalign((void**)&newData , MEM_ALIGN, this->rows * this->cols * sizeof(float));
+        posix_memalign((void **)&newData, MEM_ALIGN, this->rows * this->cols * sizeof(float));
     else
         newData = new float[this->rows * this->cols];
     // TODO : could be spped up by AVX or OpenMP methods
@@ -90,7 +90,7 @@ double myMath::Timer::getTimeInterval(const myMath::TimeType &type) const
         milliseconds timeMilli;
         microseconds timeMicro;
         nanoseconds timeNano;
-    }duration;
+    } duration;
     switch (type)
     {
     case SEC:
@@ -107,30 +107,30 @@ double myMath::Timer::getTimeInterval(const myMath::TimeType &type) const
     }
 }
 
-myMath::Matrix* myMath::multiMethodVanilla(const Matrix &x, const Matrix &y, Timer &counter)
+myMath::Matrix *myMath::multiMethodBasic(const Matrix &x, const Matrix &y, Timer &counter)
 {
     // Illegal Checking
-    if (x.getAligned() == true || y.getAligned() == true)
-        throw "The matrix should NOT be aligned";
     if (x.getCol() != y.getRow())
         throw "Invalid Argument Matrices";
-    int rows = x.getRow(), cols = y.getCol(), temp = x.getCol();
     // Variables Definition
-    float *data = nullptr, *xData = x.getData(), *yData = y.getData();
-    data = new float[rows * cols];
+    int rows = x.getRow(), cols = y.getCol(), temp = x.getCol();
+    float *data = new float[rows * cols], *xData = x.getData(), *yData = y.getData();
     // Working Block
     counter.setStart();
     {
-        for (int i = 0; i < rows; ++i)
-            for (int j = 0; j < cols; ++j)
-                for (int k = 0; k < temp; ++k)
-                    data[i * cols + j] += xData[i * temp + k] * yData[k * cols + j];
+        for (register int i = 0, iPtr1 = 0, iPtr2 = 0; i < rows; ++i, iPtr1 += cols, iPtr2 += temp)
+            for (register int k = 0; k < temp; ++k)
+            {
+                register float inner = xData[iPtr2 + k];
+                for (register int j = 0, jPtr = k * cols; j < cols; ++j)
+                    data[iPtr1 + j] += inner * yData[jPtr + j];
+            }
     }
     counter.setEnd();
-    return new Matrix(false, rows, cols, data);
+    return new Matrix(true, rows, cols, data);
 }
 
-myMath::Matrix* myMath::multiMethodOpenBLAS(const Matrix &x, const Matrix &y, Timer &counter)
+myMath::Matrix *myMath::multiMethodOpenBLAS(const Matrix &x, const Matrix &y, Timer &counter)
 {
     // Illegal Checking
     if ((x.getAligned() ^ y.getAligned()) == true)
@@ -140,7 +140,7 @@ myMath::Matrix* myMath::multiMethodOpenBLAS(const Matrix &x, const Matrix &y, Ti
     int rows = x.getRow(), cols = y.getCol(), temp = x.getCol();
     // Variables Definition
     float *data = nullptr, *xData = x.getData(), *yData = y.getData();
-    posix_memalign((void**)&data , MEM_ALIGN, rows * cols * sizeof(float));
+    posix_memalign((void **)&data, MEM_ALIGN, rows * cols * sizeof(float));
     // Working Block
     counter.setStart();
     {
@@ -150,83 +150,63 @@ myMath::Matrix* myMath::multiMethodOpenBLAS(const Matrix &x, const Matrix &y, Ti
     return new Matrix(true, rows, cols, data);
 }
 
-myMath::Matrix* myMath::multiMethodAdvanced(const Matrix &x, const Matrix &y, Timer &counter)
+myMath::Matrix *myMath::multiMethodAdvanced(const Matrix &x, const Matrix &y, Timer &counter)
 {
     // Illegal Checking
     if (x.getAligned() == false || y.getAligned() == false)
         throw "The matrix should be aligned";
     if (x.getCol() != y.getRow())
         throw "Invalid Argument Matrices";
-    int rows = x.getRow(), cols = y.getCol(), temp = x.getCol();
-    if (rows % 8 != 0 || cols % 8 != 0 || temp % 8 != 0)
+    if (y.getCol() % 8 != 0 || x.getRow() % 8 != 0 || x.getCol() % 8 != 0)
         throw "Matrices' size must be divisible by 8";
     // Variables Definition
+    int rows = x.getRow(), cols = y.getCol(), temp = x.getCol();
     float *data = nullptr, *xData = x.getData(), *yData = y.getData();
-    posix_memalign((void**)&data , MEM_ALIGN, rows * cols * sizeof(float));
-    float *pack = nullptr;
-    if (posix_memalign((void**)&pack, MEM_ALIGN, 8 * temp * sizeof(float)) != 0)
-        throw "Memory Error";
+    posix_memalign((void **)&data, MEM_ALIGN, rows * cols * sizeof(float));
     // Working Block
     counter.setStart();
     {
-        // omp_set_dynamic(0);
-        auto getPackage = [&](const int &j, float *output) -> void
+        #pragma omp parallel for
+        for (int i = 0; i < rows; ++i)
         {
-            for (int i = 0; i < temp; ++i)
-                memcpy(output + i * 8, yData + i * cols + j, sizeof(float) * 8);
-        };
-        auto calcPack = [&](float *dataA, float *dataB, float *dataOut) -> void
-        {
-            __m256 out0 = _mm256_setzero_ps();
-            __m256 out1 = _mm256_setzero_ps();
-            __m256 out2 = _mm256_setzero_ps();
-            __m256 out3 = _mm256_setzero_ps();
-            __m256 out4 = _mm256_setzero_ps();
-            __m256 out5 = _mm256_setzero_ps();
-            __m256 out6 = _mm256_setzero_ps();
-            __m256 out7 = _mm256_setzero_ps();
-            float *ptr = dataB;
-            for (register int k = 0; k < temp; ++k)
+            register int iPtr1 = i * cols, iPtr2 = i * temp;
+            __m256 left0 = _mm256_setzero_ps();
+            __m256 left1 = _mm256_setzero_ps();
+            __m256 left2 = _mm256_setzero_ps();
+            __m256 left3 = _mm256_setzero_ps();
+            __m256 left4 = _mm256_setzero_ps();
+            __m256 left5 = _mm256_setzero_ps();
+            __m256 left6 = _mm256_setzero_ps();
+            __m256 left7 = _mm256_setzero_ps();
+
+            __m256 right = _mm256_setzero_ps();
+            __m256 target = _mm256_setzero_ps();
+            for (register int k = 0; k < temp; k += 8)
             {
-                __m256 in0 = _mm256_set1_ps(dataA[0 * cols + k]);
-                __m256 in1 = _mm256_set1_ps(dataA[1 * cols + k]);
-                __m256 in2 = _mm256_set1_ps(dataA[2 * cols + k]);
-                __m256 in3 = _mm256_set1_ps(dataA[3 * cols + k]);
-                __m256 in4 = _mm256_set1_ps(dataA[4 * cols + k]);
-                __m256 in5 = _mm256_set1_ps(dataA[5 * cols + k]);
-                __m256 in6 = _mm256_set1_ps(dataA[6 * cols + k]);
-                __m256 in7 = _mm256_set1_ps(dataA[7 * cols + k]);
-
-                __m256 ptrVar = _mm256_load_ps(ptr);
-
-                out0 = _mm256_fmadd_ps(in0, ptrVar, out0);
-                out1 = _mm256_fmadd_ps(in1, ptrVar, out1);
-                out2 = _mm256_fmadd_ps(in2, ptrVar, out2);
-                out3 = _mm256_fmadd_ps(in3, ptrVar, out3);
-                out4 = _mm256_fmadd_ps(in4, ptrVar, out4);
-                out5 = _mm256_fmadd_ps(in5, ptrVar, out5);
-                out6 = _mm256_fmadd_ps(in6, ptrVar, out6);
-                out7 = _mm256_fmadd_ps(in7, ptrVar, out7);
-
-                ptr += 8;
+                left0 = _mm256_broadcast_ss(xData + iPtr2 + k + 0);
+                left1 = _mm256_broadcast_ss(xData + iPtr2 + k + 1);
+                left2 = _mm256_broadcast_ss(xData + iPtr2 + k + 2);
+                left3 = _mm256_broadcast_ss(xData + iPtr2 + k + 3);
+                left4 = _mm256_broadcast_ss(xData + iPtr2 + k + 4);
+                left5 = _mm256_broadcast_ss(xData + iPtr2 + k + 5);
+                left6 = _mm256_broadcast_ss(xData + iPtr2 + k + 6);
+                left7 = _mm256_broadcast_ss(xData + iPtr2 + k + 7);
+                for (register int j = 0, jPtr = k * cols; j < cols; j += 8)
+                {
+                    target = _mm256_load_ps(data + (iPtr1 + j));
+                    right = _mm256_load_ps(yData + (jPtr + j));
+                    target = _mm256_fmadd_ps(left0, right, target);
+                    target = _mm256_fmadd_ps(left1, right, target);
+                    target = _mm256_fmadd_ps(left2, right, target);
+                    target = _mm256_fmadd_ps(left3, right, target);
+                    target = _mm256_fmadd_ps(left4, right, target);
+                    target = _mm256_fmadd_ps(left5, right, target);
+                    target = _mm256_fmadd_ps(left6, right, target);
+                    target = _mm256_fmadd_ps(left7, right, target);
+                    _mm256_store_ps(data + (iPtr1 + j), target);
+                }
             }
-            _mm256_store_ps(dataOut + 0 * cols, out0);
-            _mm256_store_ps(dataOut + 1 * cols, out1);
-            _mm256_store_ps(dataOut + 2 * cols, out2);
-            _mm256_store_ps(dataOut + 3 * cols, out3);
-            _mm256_store_ps(dataOut + 4 * cols, out4);
-            _mm256_store_ps(dataOut + 5 * cols, out5);
-            _mm256_store_ps(dataOut + 6 * cols, out6);
-            _mm256_store_ps(dataOut + 7 * cols, out7);
-        };
-        #pragma omp parallel for // num_threads(8)
-        for (int j = 0; j < cols; j += 8)
-        {
-            getPackage(j, pack);
-            for (int i = 0; i < rows; i += 8)
-                calcPack(xData + i * temp, pack, data + i * cols + j);
         }
-        free(pack);
     }
     counter.setEnd();
     return new Matrix(true, rows, cols, data);
