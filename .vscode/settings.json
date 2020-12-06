@@ -19,7 +19,13 @@
         "istream": "cpp",
         "streambuf": "cpp",
         "variant": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "vector": "cpp",
+        "any": "cpp",
+        "system_error": "cpp",
+        "algorithm": "cpp"
     },
     "cmake.configureOnOpen": false
 }
