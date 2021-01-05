@@ -96,11 +96,12 @@ int main()
 
         process.addSteps({conv0, relu, pool, conv1, relu, pool, conv2, relu, fc});
 
-        process.setLogLevel(ALL);
+        process.setLogLevel(PART);
         process.setChannelDimensions({1, 1, 1});
 
         cout.precision(8);
         
+        /*
         process.execute(background);
         Matrix bg_result = process.getCurrentResult();
         cout << fixed << bg_result({0, 0}, 0, 0) << endl << bg_result({1, 0}, 0, 0) << endl;
@@ -109,7 +110,6 @@ int main()
         Matrix face_result = process.getCurrentResult();
         cout << fixed << face_result({0, 0}, 0, 0) << endl << face_result({1, 0}, 0, 0) << endl;
         
-        /*
         process.execute(background2);
         Matrix bg2_result = process.getCurrentResult();
         cout << fixed << bg2_result({0, 0}, 0, 0) << endl << bg2_result({1, 0}, 0, 0) << endl;
@@ -122,6 +122,12 @@ int main()
         Matrix bg3_result = process.getCurrentResult();
         cout << fixed << bg3_result({0, 0}, 0, 0) << endl << bg3_result({1, 0}, 0, 0) << endl;
         */
+
+        Matrix imageInfo = FileLoader("/home/invrise/SleepWalker/Assignment/C++/Project2/build/face_woman02.jpg");
+
+        process.execute(imageInfo);
+        Matrix imageInfoResult = process.getCurrentResult();
+        cout << fixed << imageInfoResult({0, 0}, 0, 0) << endl << imageInfoResult({1, 0}, 0, 0) << endl;
     }
     catch(const char* error)
     {
