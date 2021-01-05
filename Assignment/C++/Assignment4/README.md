@@ -286,7 +286,7 @@ Matrix Matrix::operator*(const Matrix& other) const
     if (this->cols != other.rows)
         throw MatrixException("Unacceptable arguments");
     shared_ptr<float> a(this->data), b(other.data), c(new float[this->rows * other.cols], del());
-    cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, this->rows, other.cols, this->cols, 1.0, a.get(), this->rows, b.get(), this->rows, 0, c.get(), this->rows);
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, this->rows, other.cols, this->cols, 1, a.get(), this->cols, b.get(), other.cols, 0, c.get(), other.cols);
     return Matrix(c, this->rows, other.cols);
 }
 

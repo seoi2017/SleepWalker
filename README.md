@@ -80,6 +80,15 @@ const关键字的用法
 CMake
 
 
+类模版成员函数不可分离编译
+
+
+类模版友元函数不可类外实现
+
+
+在包含智能指针类的构造函数中对智能指针的初始化一定要用其构造函数而不能直接调用其reset方法！
+
+
 ## TODO
 
 
@@ -95,4 +104,4 @@ DSAA LAB4 D 对顶堆BUG
 C++ Assignment 2 BUG修正与文档撰述
 
 
-DSAA LAB8 CDE 回顾
+DSAA Lab7 代码整理
